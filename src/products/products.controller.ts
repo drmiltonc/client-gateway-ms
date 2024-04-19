@@ -1,5 +1,6 @@
-import { Body, Controller, Delete, Get, Inject, Param, Patch, Post, Query } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Inject, Param, Patch, Post, Query } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
+import { firstValueFrom } from 'rxjs';
 import { PaginationDto } from 'src/common/dto';
 import { PRODUCT_SERVICE } from 'src/config/services';
 
@@ -20,10 +21,18 @@ export class ProductsController {
     return this.productsClient.send({ cmd: 'find_all_products' }, paginationDto);
   }
 
+  //añadir excepciones en caso de no encontrar un producto con el id especificado en el siguiente código
   @Get(':id')
-  findOneProduct(@Param('id') id: string) {
-    return 'Esta función regresa un producto con el ID ' + id;
+  async findOneProduct(@Param('id') id: number) {
+    try {
+      const product = await firstValueFrom(this.productsClient.send({ cmd: 'find_one_product' }, { id }));
+      return product;
+    } catch (e) {
+      throw new BadRequestException(e);
+    }
   }
+
+
 
   @Delete(':id')
   deleteProduct(@Param('id') id: string) {
