@@ -1,13 +1,14 @@
-import { Controller, Get, Post, Body, Param, Inject} from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Inject, ParseUUIDPipe, Query } from '@nestjs/common';
 import { ORDER_SERVICE } from 'src/config/services';
-import { ClientProxy } from '@nestjs/microservices';
-import { CreateOrderDto } from './dto';
+import { ClientProxy, RpcException } from '@nestjs/microservices';
+import { CreateOrderDto, PaginationOrderDto } from './dto';
+import { firstValueFrom } from 'rxjs';
 
 @Controller('orders')
 export class OrdersController {
   constructor(
     @Inject(ORDER_SERVICE) private readonly ordersClient: ClientProxy
-  ) {}
+  ) { }
 
   @Post()
   create(@Body() createOrderDto: CreateOrderDto) {
@@ -15,14 +16,22 @@ export class OrdersController {
   }
 
   @Get()
-  findAll() {
-    return this.ordersClient.send('findAllOrders', { });
+  findAll(@Query() paginationOrderDto: PaginationOrderDto) {
+    const orders = this.ordersClient.send('findAllOrders', paginationOrderDto );
+    return orders;
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.ordersClient.send('findOneOrder', {id});
+  async findOne(@Param('id', ParseUUIDPipe) id: string) {
+
+    try {
+      const order = await firstValueFrom(this.ordersClient.send('findOneOrder', { id }));
+      return order;
+    } catch (error) {
+      throw new RpcException(error);
+    }
+
   }
 
-  
+
 }
