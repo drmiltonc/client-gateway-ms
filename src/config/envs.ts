@@ -10,6 +10,8 @@ const envVarsSchema = joi.object({
     PORT: joi.number().required(),
     PRODUCTS_MICROSERVICE_HOST: joi.string().required(),
     PRODUCTS_MICROSERVICE_PORT: joi.number().required(),
+    ORDER_MICROSERVICE_HOST: joi.string().required(),
+    ORDER_MICROSERVICE_PORT: joi.number().required(),
 }).unknown(true);
 
 // Valida las variables de entorno utilizando el esquema definido
