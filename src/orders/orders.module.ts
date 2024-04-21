@@ -22,7 +22,7 @@ import envVars from 'src/config/envs';
           host: envVars.ORDER_MICROSERVICE_HOST,
 
           // Establece el puerto del servicio de productos.
-          port: envVars.ORDER_MICROSERVICE_PORT,
+          port: envVars.ORDER_MICROSERVICE_PORT
         },
       },
     ]),
