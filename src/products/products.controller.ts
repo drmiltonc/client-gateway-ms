@@ -22,21 +22,21 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 
 // Importa el nombre del servicio de productos desde el archivo de configuración.
-import { PRODUCT_SERVICE } from 'src/config/services';
+import { NATS_SERVICE } from 'src/config/services';
 
 // Define el controlador de productos.
 @Controller('products')
 export class ProductsController {
   // Inyecta el cliente proxy para el servicio de productos.
   constructor(
-    @Inject(PRODUCT_SERVICE) private readonly productsClient: ClientProxy,
+    @Inject(NATS_SERVICE) private readonly client: ClientProxy,
   ) { }
 
   // Crea un nuevo producto.
   @Post()
   createProduct(@Body() createProductDto: CreateProductDto) {
     // Envía un mensaje al servicio de productos para crear un nuevo producto.
-    return this.productsClient.send(
+    return this.client.send(
       { cmd: 'create_product' },
       createProductDto,
     );
@@ -46,7 +46,7 @@ export class ProductsController {
   @Get()
   findAllProducts(@Query() paginationDto: PaginationDto) {
     // Envía un mensaje al servicio de productos para obtener todos los productos.
-    return this.productsClient.send(
+    return this.client.send(
       { cmd: 'find_all_products' },
       paginationDto,
     );
@@ -56,7 +56,7 @@ export class ProductsController {
   @Get(':id')
   async findOne(@Param('id') id: string) {
     // Envía un mensaje al servicio de productos para obtener un producto por su ID.
-    return this.productsClient.send({ cmd: 'find_one_product' }, { id }).pipe(
+    return this.client.send({ cmd: 'find_one_product' }, { id }).pipe(
       // Captura cualquier error y lo lanza como una excepción RPC.
       catchError((err) => {
         throw new RpcException(err);
@@ -69,7 +69,7 @@ export class ProductsController {
   @Delete(':id')
   deleteProduct(@Param('id') id: string) {
     // Envía un mensaje al servicio de productos para eliminar un producto por su ID.
-    return this.productsClient.send({ cmd: 'delete_product' }, { id }).pipe(
+    return this.client.send({ cmd: 'delete_product' }, { id }).pipe(
       // Captura cualquier error y lo lanza como una excepción RPC.
       catchError((err) => {
         throw new RpcException(err);
@@ -84,7 +84,7 @@ export class ProductsController {
     @Body() updateProductDto: UpdateProductDto,
   ) {
     // Envía un mensaje al servicio de productos para actualizar un producto por su ID.
-    return this.productsClient
+    return this.client
       .send(
         { cmd: 'update_product' },
         {
