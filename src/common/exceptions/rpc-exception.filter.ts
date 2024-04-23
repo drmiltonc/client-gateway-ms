@@ -14,6 +14,13 @@ export class RpcCustomExceptionFilter implements ExceptionFilter {
     // Obtiene el error RPC.
     const rpcError = exception.getError();
 
+    if(rpcError.toString().includes('Empty response')) {
+      return res.status(500).json({
+        status: 500,
+        message: rpcError.toString().substring(0, rpcError.toString().indexOf('(') - 1)
+      })      
+    }
+
     // Si el error RPC es un objeto con propiedades 'status' y 'message', devuelve el error con el código de estado correspondiente.
     if (typeof rpcError === 'object' && 'status' in rpcError && 'message' in rpcError) {
         const status = rpcError.status;

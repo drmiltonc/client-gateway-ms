@@ -11,14 +11,28 @@ export class OrdersController {
   ) { }
 
   @Post()
-  create(@Body() createOrderDto: CreateOrderDto) {
-    return this.client.send('createOrder', createOrderDto);
+  async create(@Body() createOrderDto: CreateOrderDto) {
+
+    try {
+
+      const order = await firstValueFrom(this.client.send('createOrder', createOrderDto));
+      return order;
+      
+    } catch (e) {
+      throw new RpcException(e);
+    }
   }
 
   @Get()
-  findAll(@Query() paginationOrderDto: PaginationOrderDto) {
-    const orders = this.client.send('findAllOrders', paginationOrderDto );
+  async findAll(@Query() paginationOrderDto: PaginationOrderDto) {
+    
+
+    try {
+      const orders = await firstValueFrom(this.client.send('findAllOrders', paginationOrderDto ));
     return orders;
+    } catch (e) {
+      throw new RpcException(e);
+    }
   }
   @Get(':id')
   async findOne(@Param('id', ParseUUIDPipe) id: string) {
